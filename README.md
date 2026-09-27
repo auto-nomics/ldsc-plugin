@@ -1,11 +1,10 @@
 # ldsc plugin
 
-Migrated from `crates/node-bundles/nodes-io/src/ldsc_h2_container.rs`
-(M5 pilot). One directory = one plugin family = one git-able unit.
+Migrated from the legacy `ldsc_h2` wrapper in nodes-io (M5 pilot). One directory = one plugin family = one git-able unit.
 
 ## Layout
 
-- `manifest.toml` — node kind `ldsc_h2_container`: params, ports, panels,
+- `manifest.toml` — node kind `ldsc_h2`: params, ports, panels,
   image provenance
 - `scripts/h2.sh` — the execution script, referenced relatively and
   inlined by the loader at startup
