@@ -1,0 +1,50 @@
+schema_version = 1
+plugin_name = "ldsc"
+
+[image]
+reference = "ghcr.io/auto-nomics/autonomics/ldsc@sha256:2dad70a9583f93db1dcc9a560b7d5b309af4a5151dfaf615f80d059a0925d78c"
+tag = "3.0.1-allele-filter"
+upstream = "CBIIT LDSC continuation 3.0.1 @ 6c67395"
+license = "BSD-3-Clause"
+
+[[panels]]
+binding = "ref_ld"
+mount = "/panels/ref_ld"
+bundle = "wjixiang/catalog-ldsc-ref-ld-1000g-eur-basic"
+
+[[panels]]
+binding = "w_ld"
+mount = "/panels/w_ld"
+bundle = "wjixiang/catalog-ldsc-w-ld-1000g-eur-hm3-no-mhc"
+
+[[nodes]]
+kind = "ldsc_h2_container"
+desc = "Runs official LDSC 3.0.1 h2 on one GWAS sumstats file."
+doc = """
+Estimates SNP heritability with the official LDSC continuation build.
+The input is one tab-separated sumstats File with SNP, A1, A2, N, and Z
+columns; plain .tsv and gzip .sumstats.gz are both accepted (the script
+decompresses .gz inputs itself). Both required LD-score panels are bound
+through the catalog; the node emits the raw LDSC log as an immutable VFS
+artifact.
+"""
+timeout_secs = 900
+artifact_prefix = "/artifacts/ldsc_h2_container"
+
+[nodes.ports]
+inputs = [{ type = "file" }]
+outputs = [{ path = "ldsc_h2.log", format = "ldsc_log" }]
+
+[nodes.params]
+n_blocks = { type = "int", default = 200, min = 2.0, doc = "Block-jackknife block count" }
+intercept_h2 = { type = "number", optional = true, doc = "Constrained LD Score regression intercept" }
+chisq_max = { type = "number", optional = true, exclusive_min = 0.0, doc = "Chi-square outlier cutoff" }
+
+[nodes.command]
+interpreter = "sh"
+script_file = "scripts/h2.sh"
+
+[nodes.command.env]
+LDSC_N_BLOCKS = "{{ n_blocks }}"
+LDSC_INTERCEPT_H2 = "{{ intercept_h2 }}"
+LDSC_CHISQ_MAX = "{{ chisq_max }}"
